@@ -1,0 +1,56 @@
+server:
+  host: 127.0.0.1
+  port: 8000
+
+security:
+  secret_key: CHANGE_ME
+  algorithm: HS256
+  access_token_minutes: 480
+
+storage:
+  uploads: storage/uploads
+  deployments: storage/deployments
+  options: storage/options
+
+content:
+  backend: filesystem
+
+  git:
+    repo_path: flexlm-content-repo
+
+  filesystem:
+    path: storage/content
+
+auth:
+  # provider: local             - local usernames only
+  # provider: header            - makes use of external authentication schema
+  # provider: ldap              - ldap authentication
+  provider: ldap
+
+  header:
+    username_header: X-Remote-User
+    email_header: X-Remote-Email
+    groups_header: X-Remote-Groups
+
+    admin_groups:
+      - flexlm-admins
+
+    manager_groups:
+      - flexlm-managers
+
+  ldap:
+    server_uri: ldaps://ldap.example.com
+    bind_dn: "CN=myService,OU=Services,DC=example,DC=com"
+    bind_password: "mySecretPassword"
+    user_search_base: OU=Users,DC=example,DC=com
+    user_filter: "(sAMAccountName={username})"
+    group_attribute: memberOf
+
+    admin_groups:
+      - CN=FlexLM Admins,OU=Group,DC=example,DC=com
+
+    manager_groups:
+      - CN=FlexLM Managers,OU=Group,DC=example,DC=com
+
+database:
+  url: sqlite:///./flexlm_portal_v2.db
