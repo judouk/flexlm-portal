@@ -39,6 +39,9 @@ class LicenseFile(Base):
     publish_status = Column(String)
     publish_message = Column(String)
 
+    deleted_at = Column(DateTime)
+    deleted_by = Column(String)
+
     features = relationship(
         "Feature",
         back_populates="license_file",

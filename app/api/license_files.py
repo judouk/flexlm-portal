@@ -1,3 +1,4 @@
+from datetime import datetime
 from fastapi import APIRouter, Depends, File, UploadFile
 from pathlib import Path
 import shutil
@@ -44,7 +45,22 @@ def delete_license_file(
         },
     )
 
-    db.delete(license_file)
+    license_file.deleted_at = datetime.utcnow()
+    license_file.deleted_by = user["sub"]
+
+    write_audit_event(
+        db,
+        actor=user["sub"],
+        action="license_file.deleted",
+        object_type="license_file",
+        object_id=license_file.id,
+        details={
+            "filename": license_file.filename,
+            "storage_path": license_file.storage_path,
+            "server_id": license_file.server_id,
+        },
+    )
+
     db.commit()
     db.close()
 
@@ -166,7 +182,9 @@ def list_license_files(
 
     db = SessionLocal()
 
-    license_files = db.query(LicenseFile).order_by(
+    license_files = db.query(LicenseFile).filter(
+        LicenseFile.deleted_at.is_(None)
+    ).order_by(
         LicenseFile.imported_at.desc()
     ).limit(200).all()
 

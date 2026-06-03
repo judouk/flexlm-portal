@@ -1,3 +1,4 @@
+from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import PlainTextResponse
 from pathlib import Path
@@ -45,7 +46,21 @@ def delete_deployment(
         },
     )
 
-    db.delete(deployment)
+    deployment.deleted_at = datetime.utcnow()
+    deployment.deleted_by = user["sub"]
+
+    write_audit_event(
+        db,
+        actor=user["sub"],
+        action="deployment.deleted",
+        object_type="deployment",
+        object_id=deployment.id,
+        details={
+            "artifact_path": deployment.artifact_path,
+            "server_id": deployment.server_id,
+        },
+    )
+
     db.commit()
     db.close()
 
@@ -203,7 +218,9 @@ def list_deployments(
 
     db = SessionLocal()
 
-    deployments = db.query(Deployment).order_by(
+    deployments = db.query(Deployment).filter(
+        Deployment.deleted_at.is_(None)
+    ).order_by(
         Deployment.generated_at.desc()
     ).limit(200).all()
 

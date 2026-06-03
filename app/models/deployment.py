@@ -36,3 +36,6 @@ class Deployment(Base):
     published_at = Column(DateTime)
     publish_status = Column(String)
     publish_message = Column(String)
+
+    deleted_at = Column(DateTime)
+    deleted_by = Column(String)

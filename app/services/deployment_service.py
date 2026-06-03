@@ -17,7 +17,8 @@ def generate_deployment_for_server(db, server_id: int):
         return None, {"error": "server not found"}
 
     license_files = db.query(LicenseFile).filter(
-        LicenseFile.server_id == server_id
+        LicenseFile.server_id == server_id,
+        LicenseFile.deleted_at.is_(None),
     ).order_by(
         LicenseFile.imported_at.asc()
     ).all()
