@@ -268,20 +268,40 @@ button:disabled {
 
 .daemon-row {
   display: grid;
-  grid-template-columns: 120px minmax(220px, 2fr) 90px minmax(220px, 2fr) auto;
+  grid-template-columns:
+    minmax(80px, 0.8fr)
+    minmax(0, 1.5fr)
+    minmax(70px, 0.6fr)
+    minmax(0, 1.5fr)
+    auto;
   gap: 0.75rem;
   align-items: center;
   font-size: 0.9rem;
   padding: 0.6rem;
   background: #f8fafc;
   border-radius: 8px;
+  max-width: 100%;
+}
+
+.daemon-row > * {
+  min-width: 0;
 }
 
 .daemon-form {
   display: grid;
-  grid-template-columns: 140px 1fr 1fr 100px auto;
+  grid-template-columns:
+    minmax(90px, 1fr)
+    minmax(0, 1.5fr)
+    minmax(70px, 0.6fr)
+    minmax(0, 1.5fr)
+    auto;
   gap: 0.5rem;
   align-items: center;
+  max-width: 100%;
+}
+
+.daemon-form > * {
+  min-width: 0;
 }
 
 .daemon-path {
@@ -289,10 +309,7 @@ button:disabled {
   word-break: break-word;
 }
 
-.daemon-port {
-  white-space: nowrap;
-}
-
+.daemon-port,
 .daemon-name {
   white-space: nowrap;
 }
