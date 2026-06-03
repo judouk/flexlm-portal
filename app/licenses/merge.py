@@ -3,7 +3,6 @@ from pathlib import Path
 
 from app.licenses.parser import parse_license
 
-
 MONTHS = {
     "jan": 1,
     "feb": 2,
@@ -18,7 +17,6 @@ MONTHS = {
     "nov": 11,
     "dec": 12,
 }
-
 
 def parse_expiry(expiry: str):
     if expiry.lower() == "permanent":
@@ -36,7 +34,6 @@ def parse_expiry(expiry: str):
     except Exception:
         return None
 
-
 def is_feature_expired(feature):
     expiry = parse_expiry(feature["expiry"])
 
@@ -45,7 +42,6 @@ def is_feature_expired(feature):
 
     return expiry < datetime.utcnow()
 
-
 def feature_identity(feature):
     return (
         feature["name"],
@@ -53,7 +49,6 @@ def feature_identity(feature):
         feature["expiry"],
         str(feature["count"]),
     )
-
 
 def build_server_lines(server):
     lines = [
@@ -130,28 +125,33 @@ def build_additive_license(server, license_files):
             errors="ignore",
         )
 
-        for line in text.splitlines():
-            stripped = line.strip()
+    for block in logical_blocks(text):
+        block_lines = block.splitlines()
 
-            if not (
-                stripped.startswith("FEATURE ") or
-                stripped.startswith("INCREMENT ")
-            ):
-                continue
+        if not block_lines:
+            continue
 
-            parsed = parse_license(line)
+        first_line = block_lines[0].strip()
 
-            if not parsed["features"]:
-                continue
+        if not (
+            first_line.startswith("FEATURE ") or
+            first_line.startswith("INCREMENT ")
+        ):
+            continue
 
-            feature = parsed["features"][0]
+        parsed = parse_license(first_line)
 
-            if is_feature_expired(feature):
-                continue
+        if not parsed["features"]:
+            continue
 
-            identity = feature_identity(feature)
+        feature = parsed["features"][0]
 
-            selected_blocks[identity] = line
+        if is_feature_expired(feature):
+            continue
+
+        identity = feature_identity(feature)
+
+        selected_blocks[identity] = block
 
     lines = build_server_lines(server)
     lines.append("")
@@ -160,7 +160,6 @@ def build_additive_license(server, license_files):
         lines.append(block)
 
     return "\n".join(lines)
-
 
 def build_deployment_license(server, license_files):
     if server.merge_policy == "latest_only":
@@ -173,3 +172,19 @@ def build_deployment_license(server, license_files):
         server,
         license_files,
     )
+
+def logical_blocks(text: str):
+    current = []
+
+    for raw_line in text.splitlines():
+        line = raw_line.rstrip()
+        current.append(line)
+
+        if line.endswith("\\"):
+            continue
+
+        yield "\n".join(current)
+        current = []
+
+    if current:
+        yield "\n".join(current)
