@@ -13,10 +13,12 @@ storage:
   options: storage/options
 
 content:
+  # backend: git                - store data in git
+  # backend: filesystem         - store data on disk
   backend: filesystem
 
   git:
-    repo_path: flexlm-content-repo
+    repo_path: /var/lib/flexlm-portal/content-repo
 
   filesystem:
     path: storage/content
