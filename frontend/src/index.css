@@ -268,23 +268,26 @@ button:disabled {
 
 .daemon-row {
   display: grid;
-  grid-template-columns:
-    minmax(80px, 0.8fr)
-    minmax(0, 1.5fr)
-    minmax(70px, 0.6fr)
-    minmax(0, 1.5fr)
-    auto;
-  gap: 0.75rem;
+  grid-template-columns: 1fr auto auto;
+  grid-template-areas:
+    "name port delete"
+    "daemon daemon daemon"
+    "options options options";
+  gap: 0.5rem 0.75rem;
   align-items: center;
   font-size: 0.9rem;
-  padding: 0.6rem;
+  padding: 0.75rem;
   background: #f8fafc;
   border-radius: 8px;
   max-width: 100%;
 }
 
-.daemon-row > * {
-  min-width: 0;
+.daemon-row .daemon-path:nth-of-type(1) {
+  grid-area: daemon;
+}
+
+.daemon-row .daemon-path:nth-of-type(2) {
+  grid-area: options;
 }
 
 .daemon-form {
@@ -309,9 +312,17 @@ button:disabled {
   word-break: break-word;
 }
 
-.daemon-port,
 .daemon-name {
+  grid-area: name;
+}
+
+.daemon-port {
+  grid-area: port;
   white-space: nowrap;
+}
+
+.daemon-delete {
+  grid-area: delete;
 }
 
 .status-pill {
