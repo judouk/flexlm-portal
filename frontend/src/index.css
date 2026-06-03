@@ -254,6 +254,7 @@ button:disabled {
 }
 
 .daemon-section {
+  grid-column: 1 / -1;
   margin-top: 1rem;
   padding-top: 1rem;
   border-top: 1px solid #e2e8f0;
@@ -268,18 +269,13 @@ button:disabled {
 
 .daemon-row {
   display: grid;
-  grid-template-columns: 1fr auto auto;
-  grid-template-areas:
-    "name port delete"
-    "daemon daemon daemon"
-    "options options options";
-  gap: 0.5rem 0.75rem;
+  grid-template-columns: 120px 1fr 100px 1fr auto;
+  gap: 0.75rem;
   align-items: center;
   font-size: 0.9rem;
-  padding: 0.75rem;
+  padding: 0.6rem;
   background: #f8fafc;
   border-radius: 8px;
-  max-width: 100%;
 }
 
 .daemon-row .daemon-path:nth-of-type(1) {
@@ -292,15 +288,10 @@ button:disabled {
 
 .daemon-form {
   display: grid;
-  grid-template-columns:
-    minmax(90px, 1fr)
-    minmax(0, 1.5fr)
-    minmax(70px, 0.6fr)
-    minmax(0, 1.5fr)
-    auto;
+  grid-template-columns: 140px 1fr 100px 1fr auto;
   gap: 0.5rem;
   align-items: center;
-  max-width: 100%;
+  margin-top: 0.75rem;
 }
 
 .daemon-form > * {
