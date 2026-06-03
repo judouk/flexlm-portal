@@ -267,25 +267,6 @@ button:disabled {
   margin: 0.75rem 0;
 }
 
-.daemon-row {
-  display: grid;
-  grid-template-columns: 120px 1fr 100px 1fr auto;
-  gap: 0.75rem;
-  align-items: center;
-  font-size: 0.9rem;
-  padding: 0.6rem;
-  background: #f8fafc;
-  border-radius: 8px;
-}
-
-.daemon-row .daemon-path:nth-of-type(1) {
-  grid-area: daemon;
-}
-
-.daemon-row .daemon-path:nth-of-type(2) {
-  grid-area: options;
-}
-
 .daemon-form {
   display: grid;
   grid-template-columns: 140px 1fr 100px 1fr auto;
@@ -298,22 +279,32 @@ button:disabled {
   min-width: 0;
 }
 
-.daemon-path {
+.daemon-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  font-size: 0.9rem;
+  padding: 0.75rem;
+  background: #f8fafc;
+  border-radius: 8px;
+  max-width: 100%;
+}
+
+.daemon-topline {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.daemon-detail {
   overflow-wrap: anywhere;
   word-break: break-word;
+  color: #334155;
 }
 
-.daemon-name {
-  grid-area: name;
-}
-
-.daemon-port {
-  grid-area: port;
-  white-space: nowrap;
-}
-
-.daemon-delete {
-  grid-area: delete;
+.daemon-detail strong {
+  color: #1f2933;
 }
 
 .status-pill {

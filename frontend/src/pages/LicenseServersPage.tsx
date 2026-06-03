@@ -264,19 +264,20 @@ export function LicenseServersPage() {
                         <div className="daemon-list">
                           {(daemonsByServer[server.id] ?? []).map((daemon) => (
                             <div className="daemon-row" key={daemon.id}>
-                              <strong className="daemon-name">{daemon.name}</strong>
-                              <span className="daemon-port">port={daemon.port ?? "-"}</span>
-                              <button
-                                className="daemon-delete"
-                                type="button"
-                                onClick={() => deleteDaemon(server.id, daemon.id)}
-                              >
-                                Delete
-                              </button>
-                              <div className="daemon-path">
+                              <div className="daemon-topline">
+                                <strong>{daemon.name}</strong>
+                                <span>port={daemon.port ?? "-"}</span>
+                                <button
+                                  type="button"
+                                  onClick={() => deleteDaemon(server.id, daemon.id)}
+                                >
+                                  Delete
+                                </button>
+                              </div>
+                              <div className="daemon-detail">
                                 <strong>Daemon:</strong> {daemon.daemon_path ?? "-"}
                               </div>
-                              <div className="daemon-path">
+                              <div className="daemon-detail">
                                 <strong>Options:</strong> {daemon.options_file_path ?? "-"}
                               </div>
                             </div>
