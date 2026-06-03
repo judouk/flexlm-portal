@@ -76,20 +76,6 @@ export function DeploymentsPage() {
     }
   }
 
-  async function recordDeployment(id: number) {
-    setError(null);
-
-    try {
-      await apiRequest(`/deployments/${id}/record`, {
-        method: "POST",
-      });
-
-      await loadData();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to record deployment");
-    }
-  }
-
   async function viewDeployment(deployment: Deployment) {
     setError(null);
 

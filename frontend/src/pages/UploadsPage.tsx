@@ -88,20 +88,6 @@ export function UploadsPage() {
     }
   }
 
-  async function recordUpload(id: number) {
-    setError(null);
-
-    try {
-      await apiRequest(`/license-files/${id}/record`, {
-        method: "POST",
-      });
-
-      await loadFiles();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to record upload");
-    }
-  }
-
   return (
     <div className="page-layout">
       <div className="page-header">

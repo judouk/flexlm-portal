@@ -1,5 +1,6 @@
 **/__pycache__/
 /flexlm_portal_v2.db
 .venv/
-storage/
 config/portal.yaml
+frontend/dist
+storage/
