@@ -11,6 +11,16 @@ export function DeploymentsPage() {
   const [error, setError] = useState<string | null>(null);
   const [validationByDeployment, setValidationByDeployment] = useState<Record<number, ValidationResult[]> >({});
 
+  async function deleteDeployment(id: number) {
+    if (!confirm(`Delete deployment ${id}?`)) return;
+
+    await apiRequest(`/deployments/${id}`, {
+      method: "DELETE",
+    });
+
+    await loadData();
+  }
+
   async function loadData() {
     try {
       const [serverResponse, deploymentResponse] = await Promise.all([
@@ -167,6 +177,9 @@ export function DeploymentsPage() {
                       <div className="action-buttons">
                         <button onClick={() => viewDeployment(deployment)}>
                           View
+                        </button>
+                        <button onClick={() => deleteDeployment(deployment.id)}>
+                          Delete
                         </button>
                       </div>
                     </td>

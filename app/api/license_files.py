@@ -1,16 +1,54 @@
-from fastapi import APIRouter
-from fastapi import Depends
-from fastapi import File
-from fastapi import UploadFile
+from fastapi import APIRouter, Depends, File, UploadFile
+from pathlib import Path
+import shutil
 
 from app.audit import write_audit_event
-from app.auth.dependencies import require_manager, require_user
+from app.auth.dependencies import require_admin, require_manager, require_user
 from app.db import SessionLocal
 from app.models.license_file import LicenseFile
 from app.services.content_recording_service import record_license_file
 from app.services.license_import_service import import_license_file
 
 router = APIRouter()
+
+@router.delete("/license-files/{license_file_id}")
+def delete_license_file(
+    license_file_id: int,
+    user=Depends(require_admin),
+):
+    db = SessionLocal()
+
+    license_file = db.query(LicenseFile).filter(
+        LicenseFile.id == license_file_id
+    ).first()
+
+    if not license_file:
+        db.close()
+        return {"error": "license file not found"}
+
+    storage_path = Path(license_file.storage_path)
+
+    if storage_path.exists():
+        shutil.rmtree(storage_path.parent, ignore_errors=True)
+
+    write_audit_event(
+        db,
+        actor=user["sub"],
+        action="license_file.deleted",
+        object_type="license_file",
+        object_id=license_file.id,
+        details={
+            "filename": license_file.filename,
+            "storage_path": license_file.storage_path,
+            "server_id": license_file.server_id,
+        },
+    )
+
+    db.delete(license_file)
+    db.commit()
+    db.close()
+
+    return {"id": license_file_id, "deleted": True}
 
 @router.post("/license-files/import")
 async def import_license(

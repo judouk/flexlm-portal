@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import PlainTextResponse
 from pathlib import Path
+import shutil
 
 from app.audit import write_audit_event
-from app.auth.dependencies import require_manager, require_user
+from app.auth.dependencies import require_admin, require_manager, require_user
 from app.db import SessionLocal
 from app.models.deployment import Deployment
 from app.models.validation_result import ValidationResult
@@ -11,6 +12,44 @@ from app.services.content_recording_service import record_deployment
 from app.services.deployment_service import generate_deployment_for_server
 
 router = APIRouter()
+
+@router.delete("/deployments/{deployment_id}")
+def delete_deployment(
+    deployment_id: int,
+    user=Depends(require_admin),
+):
+    db = SessionLocal()
+
+    deployment = db.query(Deployment).filter(
+        Deployment.id == deployment_id
+    ).first()
+
+    if not deployment:
+        db.close()
+        return {"error": "deployment not found"}
+
+    artifact_path = Path(deployment.artifact_path)
+
+    if artifact_path.exists():
+        shutil.rmtree(artifact_path.parent, ignore_errors=True)
+
+    write_audit_event(
+        db,
+        actor=user["sub"],
+        action="deployment.deleted",
+        object_type="deployment",
+        object_id=deployment.id,
+        details={
+            "artifact_path": deployment.artifact_path,
+            "server_id": deployment.server_id,
+        },
+    )
+
+    db.delete(deployment)
+    db.commit()
+    db.close()
+
+    return {"id": deployment_id, "deleted": True}
 
 @router.post(
     "/license-servers/{server_id}/generate-deployment"

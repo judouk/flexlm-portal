@@ -34,6 +34,17 @@ export function UploadsPage() {
   const [lastImport, setLastImport] = useState<ImportResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  async function deleteUpload(id: number) {
+    if (!confirm(`Delete upload ${id}?`)) return;
+
+    await apiRequest(`/license-files/${id}`, {
+      method: "DELETE",
+    });
+
+    await loadFiles();
+  }
+
   async function loadFiles() {
     try {
       const response = await apiRequest<LicenseFile[]>("/license-files");
@@ -156,6 +167,7 @@ export function UploadsPage() {
                   <th>Features</th>
                   <th>Content</th>
                   <th></th>
+                  <th></th>
                 </tr>
               </thead>
               <tbody>
@@ -174,6 +186,7 @@ export function UploadsPage() {
                         <span className="status-pill status-warning">not recorded</span>
                       )}
                     </td>
+                    <td><div className="action-buttons"><button onClick={() => deleteUpload(file.id)}> Delete </button></div></td>
                   </tr>
                 ))}
               </tbody>
