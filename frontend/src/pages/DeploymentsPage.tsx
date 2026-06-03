@@ -155,18 +155,19 @@ export function DeploymentsPage() {
                       </span>
                     </td>
                     <td>{deployment.artifact_path}</td>
-                    <td>{deployment.content_backend ?? "not recorded"}</td>
+                    <td>
+                      {deployment.content_backend ? (
+                        <span className="status-pill status-recorded">recorded</span>
+                      ) : (
+                        <span className="status-pill status-warning">not recorded</span>
+                      )}
+                    </td>
                     <td>{deployment.generated_at}</td>
                     <td>
                       <div className="action-buttons">
                         <button onClick={() => viewDeployment(deployment)}>
                           View
                         </button>
-                        {!deployment.content_backend && (
-                          <button onClick={() => recordDeployment(deployment.id)}>
-                            Record
-                          </button>
-                        )}
                       </div>
                     </td>
                   </tr>

@@ -168,10 +168,10 @@ export function UploadsPage() {
                     <td>{file.feature_count}</td>
                     <td>{file.content_backend ?? "not recorded"}</td>
                     <td>
-                      {!file.content_backend && (
-                        <button onClick={() => recordUpload(file.id)}>
-                          Record
-                        </button>
+                      {file.content_backend ? (
+                        <span className="status-pill status-recorded">recorded</span>
+                      ) : (
+                        <span className="status-pill status-warning">not recorded</span>
                       )}
                     </td>
                   </tr>

@@ -32,6 +32,17 @@ async def import_license(
     matched_server = result["matched_server"]
     parsed = result["parsed"]
 
+    recorded_license_file, record_error = record_license_file(
+        db,
+        license_file.id,
+    )
+
+    if record_error:
+        license_file.publish_status = "record_failed"
+        license_file.publish_message = record_error["error"]
+    else:
+        license_file = recorded_license_file
+
     write_audit_event(
         db,
         actor=user["sub"],
@@ -41,6 +52,10 @@ async def import_license(
         details={
             "filename": license_file.filename,
             "server_hostid": license_file.server_hostid,
+            "content_backend": license_file.content_backend,
+            "content_ref": license_file.content_ref,
+            "content_path": license_file.content_path,
+            "record_error": record_error,
         },
     )
 

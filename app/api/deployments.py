@@ -31,6 +31,17 @@ def generate_deployment(
         db.close()
         return error
 
+    recorded_deployment, record_error = record_deployment(
+        db,
+        deployment.id,
+    )
+
+    if record_error:
+        deployment.publish_status = "record_failed"
+        deployment.publish_message = record_error["error"]
+    else:
+        deployment = recorded_deployment
+
     write_audit_event(
         db,
         actor=user["sub"],
@@ -40,6 +51,10 @@ def generate_deployment(
         details={
             "server_id": server_id,
             "artifact_path": deployment.artifact_path,
+            "content_backend": deployment.content_backend,
+            "content_ref": deployment.content_ref,
+            "content_path": deployment.content_path,
+            "record_error": record_error,
         },
     )
 
