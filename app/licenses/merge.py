@@ -18,101 +18,9 @@ MONTHS = {
     "dec": 12,
 }
 
-def parse_expiry(expiry: str):
-    if expiry.lower() == "permanent":
-        return None
-
-    try:
-        day, month, year = expiry.split("-")
-
-        return datetime(
-            int(year),
-            MONTHS[month.lower()],
-            int(day),
-        )
-
-    except Exception:
-        return None
-
-def is_feature_expired(feature):
-    expiry = parse_expiry(feature["expiry"])
-
-    if expiry is None:
-        return False
-
-    return expiry < datetime.utcnow()
-
-def feature_identity(feature):
-    return (
-        feature["name"],
-        feature["version"],
-        feature["expiry"],
-        str(feature["count"]),
-    )
-
-def build_server_lines(server):
-    lines = [
-        f"SERVER {server.hostname} {server.hostid} {server.lmgrd_port}"
-    ]
-
-    for daemon in sorted(server.daemons, key=lambda d: d.name):
-        vendor_line = f"DAEMON {daemon.name}"
-        if daemon.daemon_path:
-            vendor_line += f" {daemon.daemon_path}"
-
-        if daemon.options_file_path:
-            vendor_line += f" {daemon.options_file_path}"
-
-        if daemon.port:
-            vendor_line += f" port={daemon.port}"
-
-        lines.append(vendor_line)
-
-    return lines
-
-
-def strip_server_lines(text):
-    kept_lines = []
-
-    for line in text.splitlines():
-        stripped = line.strip()
-
-        if stripped.startswith("SERVER "):
-            continue
-
-        if stripped.startswith("VENDOR "):
-            continue
-
-        if stripped.startswith("DAEMON "):
-            continue
-
-        kept_lines.append(line)
-
-    return "\n".join(kept_lines)
-
-
-def build_latest_only_license(server, license_files):
-    latest_license = sorted(
-        license_files,
-        key=lambda lf: lf.imported_at,
-    )[-1]
-
-    text = Path(latest_license.storage_path).read_text(
-        encoding="utf-8",
-        errors="ignore",
-    )
-
-    body = strip_server_lines(text)
-
-    lines = build_server_lines(server)
-    lines.append("")
-    lines.append(body)
-
-    return "\n".join(lines)
-
-
 def build_additive_license(server, license_files):
     selected_blocks = {}
+    allowed_vendors = configured_vendor_names(server)
 
     sorted_license_files = sorted(
         license_files,
@@ -146,6 +54,9 @@ def build_additive_license(server, license_files):
 
         feature = parsed["features"][0]
 
+        if feature["vendor"] not in allowed_vendors:
+            continue
+
         if is_feature_expired(feature):
             continue
 
@@ -173,6 +84,76 @@ def build_deployment_license(server, license_files):
         license_files,
     )
 
+def build_latest_only_license(server, license_files):
+    latest_license = sorted(
+        license_files,
+        key=lambda lf: lf.imported_at,
+    )[-1]
+
+    text = Path(latest_license.storage_path).read_text(
+        encoding="utf-8",
+        errors="ignore",
+    )
+
+    body = strip_server_lines(text)
+
+    lines = build_server_lines(server)
+    lines.append("")
+    lines.append(body)
+
+    return "\n".join(lines)
+
+def build_server_lines(server):
+    lines = [
+        f"SERVER {server.hostname} {server.hostid} {server.lmgrd_port}"
+    ]
+
+    for daemon in sorted(server.daemons, key=lambda d: d.name):
+        vendor_line = f"DAEMON {daemon.name}"
+        if daemon.daemon_path:
+            vendor_line += f" {daemon.daemon_path}"
+
+        if daemon.options_file_path:
+            vendor_line += f" {daemon.options_file_path}"
+
+        if daemon.port:
+            vendor_line += f" port={daemon.port}"
+
+        lines.append(vendor_line)
+
+    return lines
+
+def configured_vendor_names(server):
+    names = set()
+
+    for daemon in server.daemons:
+        names.add(daemon.name)
+
+        if daemon.served_vendors:
+            for vendor in daemon.served_vendors.split(","):
+                vendor = vendor.strip()
+
+                if vendor:
+                    names.add(vendor)
+
+    return names
+
+def feature_identity(feature):
+    return (
+        feature["name"],
+        feature["version"],
+        feature["expiry"],
+        str(feature["count"]),
+    )
+
+def is_feature_expired(feature):
+    expiry = parse_expiry(feature["expiry"])
+
+    if expiry is None:
+        return False
+
+    return expiry < datetime.utcnow()
+
 def logical_blocks(text: str):
     current = []
 
@@ -188,3 +169,40 @@ def logical_blocks(text: str):
 
     if current:
         yield "\n".join(current)
+
+
+def parse_expiry(expiry: str):
+    if expiry.lower() == "permanent":
+        return None
+
+    try:
+        day, month, year = expiry.split("-")
+
+        return datetime(
+            int(year),
+            MONTHS[month.lower()],
+            int(day),
+        )
+
+    except Exception:
+        return None
+
+def strip_server_lines(text):
+    kept_lines = []
+
+    for line in text.splitlines():
+        stripped = line.strip()
+
+        if stripped.startswith("SERVER "):
+            continue
+
+        if stripped.startswith("VENDOR "):
+            continue
+
+        if stripped.startswith("DAEMON "):
+            continue
+
+        kept_lines.append(line)
+
+    return "\n".join(kept_lines)
+

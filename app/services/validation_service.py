@@ -1,3 +1,4 @@
+from app.licenses.merge import configured_vendor_names
 from datetime import datetime
 
 def parse_expiry(value):
@@ -44,7 +45,7 @@ def validate_deployment(
 
     lines = license_text.splitlines()
 
-    daemon_names = set()
+    daemon_names = configured_vendor_names(server)
 
     for daemon in server.daemons:
         daemon_names.add(daemon.name)
@@ -94,7 +95,6 @@ def validate_deployment(
                 f"{daemon.name} has no options file configured",
             )
 
-
     #
     # FEATURE checks
     #
@@ -133,7 +133,6 @@ def validate_deployment(
                             f"expired on {parts[4]}"
                         ),
                     )
-
 
     #
     # FEATURE daemon ownership
