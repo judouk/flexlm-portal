@@ -18,6 +18,7 @@ class LicenseDaemon(Base):
     daemon_path = Column(String)
     options_file_path = Column(String)
     port = Column(Integer)
+    served_vendors = Column(String)
 
     server = relationship(
         "LicenseServer",

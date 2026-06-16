@@ -14,6 +14,7 @@ class LicenseDaemonCreate(BaseModel):
     daemon_path: str | None = None
     options_file_path: str | None = None
     port: int | None = None
+    served_vendors: str | None = None
 
 class LicenseServerCreate(BaseModel):
     name: str
@@ -78,6 +79,7 @@ def create_license_daemon(
         daemon_path=data.daemon_path,
         options_file_path=data.options_file_path,
         port=data.port,
+        served_vendors=data.served_vendors,
     )
 
     db.add(daemon)
@@ -91,6 +93,7 @@ def create_license_daemon(
         "daemon_path": daemon.daemon_path,
         "options_file_path": daemon.options_file_path,
         "port": daemon.port,
+        "served_vendors": daemon.served_vendors,
     }
 
     db.close()
@@ -145,6 +148,7 @@ def list_license_daemons(
             "daemon_path": daemon.daemon_path,
             "options_file_path": daemon.options_file_path,
             "port": daemon.port,
+            "served_vendors": daemon.served_vendors,
         }
         for daemon in daemons
     ]

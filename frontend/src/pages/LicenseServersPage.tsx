@@ -26,6 +26,7 @@ export function LicenseServersPage() {
       daemon_path: string;
       options_file_path: string;
       port: string;
+      served_vendors: string;
     }>
   >({});
 
@@ -62,7 +63,7 @@ export function LicenseServersPage() {
 
   function updateDaemonForm(
     serverId: number,
-    field: "name" | "daemon_path" | "options_file_path" | "port",
+    field: "name" | "daemon_path" | "options_file_path" | "port" | "served_vendors",
     value: string
   ) {
     setDaemonForms((current) => ({
@@ -72,6 +73,7 @@ export function LicenseServersPage() {
         daemon_path: current[serverId]?.daemon_path ?? "",
         options_file_path: current[serverId]?.options_file_path ?? "",
         port: current[serverId]?.port ?? "",
+        served_vendors: current[serverId]?.served_vendors ?? "",
         [field]: value,
       },
     }));
@@ -92,6 +94,7 @@ export function LicenseServersPage() {
         daemon_path: form.daemon_path || null,
         options_file_path: form.options_file_path || null,
         port: form.port ? Number(form.port) : null,
+        served_vendors: form.served_vendors ? Number(form.served_vendors) : null,
       }),
     });
 
@@ -102,6 +105,7 @@ export function LicenseServersPage() {
         daemon_path: "",
         options_file_path: "",
         port: "",
+        served_vendors: "",
       },
     }));
 
@@ -280,6 +284,9 @@ export function LicenseServersPage() {
                               <div className="daemon-detail">
                                 <strong>Options:</strong> {daemon.options_file_path ?? "-"}
                               </div>
+                              <div className="daemon-detail">
+                                <strong>Served Vendors:</strong> {daemon.served_vendors ?? "-"}
+                              </div>
                             </div>
                           ))}
                         </div>
@@ -318,6 +325,13 @@ export function LicenseServersPage() {
                           }
                         />
 
+                        <input
+                          placeholder="served vendors"
+                          value={daemonForms[server.id]?.served_vendors ?? ""}
+                          onChange={(e) =>
+                            updateDaemonForm(server.id, "served_vendors", e.target.value)
+                          }
+                        />
 
                         <button type="button" onClick={() => createDaemon(server.id)}>
                           Add Daemon

@@ -72,6 +72,7 @@ export type LicenseDaemon = {
   daemon_path: string | null;
   options_file_path: string | null;
   port: number | null;
+  served_vendors: string | null;
 };
 
 export type ValidationResult = {

@@ -44,10 +44,14 @@ def validate_deployment(
 
     lines = license_text.splitlines()
 
-    daemon_names = {
-        daemon.name
-        for daemon in server.daemons
-    }
+    daemon_names = set()
+
+    for daemon in server.daemons:
+        daemon_names.add(daemon.name)
+
+        if daemon.served_vendors:
+            for vendor in daemon.served_vendors.split(","):
+                daemon_names.add(vendor.strip())
 
     #
     # SERVER check
