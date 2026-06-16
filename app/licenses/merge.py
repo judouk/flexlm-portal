@@ -20,7 +20,6 @@ MONTHS = {
 
 def build_additive_license(server, license_files):
     selected_blocks = {}
-    allowed_vendors = configured_vendor_names(server)
 
     sorted_license_files = sorted(
         license_files,
@@ -53,9 +52,6 @@ def build_additive_license(server, license_files):
             continue
 
         feature = parsed["features"][0]
-
-        if feature["vendor"] not in allowed_vendors:
-            continue
 
         if is_feature_expired(feature):
             continue
@@ -117,7 +113,7 @@ def build_server_lines(server):
             vendor_line += f" {daemon.options_file_path}"
 
         if daemon.port:
-            vendor_line += f" port={daemon.port}"
+            vendor_line += f" PORT={daemon.port}"
 
         lines.append(vendor_line)
 
