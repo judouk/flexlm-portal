@@ -19,6 +19,8 @@ content:
 
   git:
     repo_path: /var/lib/flexlm-portal/content-repo
+    branch: portal-generated
+    remote: origin
 
   filesystem:
     path: storage/content
