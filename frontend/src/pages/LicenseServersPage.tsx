@@ -94,7 +94,7 @@ export function LicenseServersPage() {
         daemon_path: form.daemon_path || null,
         options_file_path: form.options_file_path || null,
         port: form.port ? Number(form.port) : null,
-        served_vendors: form.served_vendors ? Number(form.served_vendors) : null,
+        served_vendors: form.served_vendors || null,
       }),
     });
 
