@@ -5,7 +5,6 @@ from sqlalchemy.orm import relationship
 
 from app.db import Base
 
-
 class LicenseFile(Base):
     __tablename__ = "license_files"
 
@@ -47,6 +46,8 @@ class LicenseFile(Base):
         back_populates="license_file",
         cascade="all, delete-orphan",
     )
+
+    matching_warning = Column(String)
 
 
 class Feature(Base):

@@ -5,6 +5,7 @@ from app.licenses.parser import parse_license
 from app.models.license_file import Feature
 from app.models.license_file import LicenseFile
 from app.models.license_server import LicenseServer
+from app.services.server_matching_server import match_server
 
 
 def import_license_file(
@@ -23,9 +24,12 @@ def import_license_file(
     matched_server = None
 
     if parsed["server"]:
-        matched_server = db.query(LicenseServer).filter(
-            LicenseServer.hostid == parsed["server"]["hostid"]
-        ).first()
+       matched_server, warning = (
+           match_server(
+               db,
+               parsed,
+           )
+       )
 
     license_file = LicenseFile(
         server_id=matched_server.id if matched_server else None,
@@ -35,7 +39,11 @@ def import_license_file(
             if parsed["server"] else None,
         server_hostid=parsed["server"]["hostid"]
             if parsed["server"] else None,
+        matching_warning=warning,
     )
+
+    if matched_server:
+        license_file.server_id = matched_server.id
 
     for feature_data in parsed["features"]:
 

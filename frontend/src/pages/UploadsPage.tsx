@@ -160,7 +160,13 @@ export function UploadsPage() {
                 {files.map((file) => (
                   <tr key={file.id}>
                     <td>{file.id}</td>
-                    <td>{file.filename}</td>
+                    <td>{file.filename} {
+                      file.matching_warning && (
+                        <div className="warning">
+                          ⚠ {file.matching_warning}
+                        </div>
+                      )
+                    }</td>
                     <td>{file.vendor ?? "-"}</td>
                     <td>{file.server_hostid ?? "-"}</td>
                     <td>{file.feature_count}</td>

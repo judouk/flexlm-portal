@@ -23,6 +23,7 @@ export type LicenseFile = {
   published_at: string | null;
   publish_status: string | null;
   publish_message: string | null;
+  matching_warning?: string | null;
 };
 
 export type Deployment = {

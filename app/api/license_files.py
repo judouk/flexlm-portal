@@ -205,6 +205,7 @@ def list_license_files(
             "published_at": item.published_at,
             "publish_status": item.publish_status,
             "publish_message": item.publish_message,
+            "matching_warning": item.matching_warning,
         }
         for item in license_files
     ]
