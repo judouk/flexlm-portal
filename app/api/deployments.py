@@ -83,7 +83,10 @@ def generate_deployment(
 
     if error:
         db.close()
-        return error
+        raise HTTPException(
+            status_code=400,
+            detail=error["error"],
+        )
 
     recorded_deployment, record_error = record_deployment(
         db,
