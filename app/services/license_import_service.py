@@ -7,7 +7,6 @@ from app.models.license_file import LicenseFile
 from app.models.license_server import LicenseServer
 from app.services.server_matching_server import match_server
 
-
 def import_license_file(
     db,
     filename: str,
