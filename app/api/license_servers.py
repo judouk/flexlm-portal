@@ -6,8 +6,18 @@ from app.db import SessionLocal
 from app.models.license_daemon import LicenseDaemon
 from app.models.license_server import LicenseServer
 
-
 router = APIRouter()
+
+#
+# Siemens/Mentor license files use:
+#
+#   DAEMON saltd ...
+#   INCREMENT ... mgcld ...
+#
+# so the daemon process name is not always the
+# same as the feature vendor name.
+#
+# served_vendors allows us to model this.
 
 class LicenseDaemonCreate(BaseModel):
     name: str
