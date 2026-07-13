@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from app.config import settings
-from app.licenses.merge import build_deployment_license
+from app.licenses.merge import build_deployment_license_with_expired_features
 from app.models.deployment import Deployment
 from app.models.license_file import LicenseFile
 from app.models.license_server import LicenseServer
@@ -28,9 +28,11 @@ def generate_deployment_for_server(db, server_id: int):
             "error": "no license files found for server"
         }
 
-    deployment_text = build_deployment_license(
-        server,
-        license_files,
+    deployment_text, expired_features = (
+        build_deployment_license_with_expired_features(
+            server,
+            license_files,
+        )
     )
 
     deployments_base = settings["storage"]["deployments"]
@@ -72,6 +74,18 @@ def generate_deployment_for_server(db, server_id: int):
         deployment,
         server,
         deployment_text,
+    )
+
+    validation_results.extend(
+        {
+            "severity": "warning",
+            "code": "expired_feature_removed",
+            "message": (
+                f"{feature['name']} expired on {feature['expiry']} "
+                "and was removed from the deployment"
+            ),
+        }
+        for feature in expired_features
     )
 
     if any(
