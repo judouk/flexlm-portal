@@ -53,6 +53,22 @@ class DeploymentLicenseTests(unittest.TestCase):
         self.assertIn("active_feature", text)
         self.assertEqual(["old_feature"], [item["name"] for item in expired])
 
+    def test_feature_expiring_today_remains_active(self):
+        today = datetime.utcnow().strftime("%d-%b-%Y")
+        license_file = self.license_file(
+            "expires-today.lic",
+            f"FEATURE expires_today vendor 1.0 {today} 5 SIGN=today\n",
+            datetime(2025, 1, 1),
+        )
+
+        text, expired = build_deployment_license_with_expired_features(
+            self.server,
+            [license_file],
+        )
+
+        self.assertIn("expires_today", text)
+        self.assertEqual([], expired)
+
     def test_latest_only_removes_expired_blocks_and_keeps_other_content(self):
         self.server.merge_policy = "latest_only"
         future_expiry = (datetime.utcnow() + timedelta(days=365)).strftime(

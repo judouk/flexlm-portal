@@ -161,7 +161,7 @@ def is_feature_expired(feature):
     if expiry is None:
         return False
 
-    return expiry < datetime.utcnow()
+    return expiry.date() < datetime.utcnow().date()
 
 def remove_expired_feature_blocks(text):
     kept_blocks = []
