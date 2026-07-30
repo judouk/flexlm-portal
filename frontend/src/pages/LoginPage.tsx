@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth";
 
 export function LoginPage() {
@@ -49,6 +49,9 @@ export function LoginPage() {
         {error && <div className="error">{error}</div>}
 
         <button type="submit">Login</button>
+        <Link className="secondary-link" to="/licences">
+          View public licence summary
+        </Link>
       </form>
     </div>
   );

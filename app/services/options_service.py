@@ -1,8 +1,8 @@
 from datetime import datetime
 from pathlib import Path
 
-from app.config import settings
 from app.content.factory import get_content_backend
+from app.models.license_daemon import LicenseDaemon
 from app.models.license_server import LicenseServer
 from app.models.options_file import OptionsFile
 
@@ -23,7 +23,7 @@ def write_options_file_to_storage(options_file):
 def create_options_file(
     db,
     server_id: int,
-    filename: str,
+    daemon_id: int,
     content: str,
 ):
 
@@ -34,29 +34,36 @@ def create_options_file(
     if not server:
         return None, {"error": "server not found"}
 
-    options_base = settings["storage"]["options"]
+    daemon = db.query(LicenseDaemon).filter(
+        LicenseDaemon.id == daemon_id,
+        LicenseDaemon.server_id == server_id,
+    ).first()
 
-    storage_path = (
-        Path(options_base) /
-        str(server.id) /
-        filename
-    )
+    if not daemon:
+        return None, {"error": "daemon not found for server"}
+
+    if not daemon.options_file_path:
+        return None, {
+            "error": "daemon has no options file path configured"
+        }
+
+    storage_path = Path(daemon.options_file_path)
+
+    if not storage_path.name:
+        return None, {
+            "error": "daemon options file path must include a filename"
+        }
 
     options_file = OptionsFile(
         server_id=server.id,
-        filename=filename,
+        filename=storage_path.name,
         storage_path=str(storage_path),
         content=content,
     )
 
-    db.add(options_file)
-    db.commit()
-    db.refresh(options_file)
-
     write_options_file_to_storage(options_file)
 
-    server.options_file_path = str(storage_path)
-
+    db.add(options_file)
     db.commit()
     db.refresh(options_file)
 
@@ -125,4 +132,3 @@ def record_options_file(
     db.refresh(options_file)
 
     return options_file, None
-

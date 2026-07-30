@@ -15,6 +15,7 @@ export function AppLayout() {
           <Link to="/deployments">Deployments</Link>
           <Link to="/options">Options Files</Link>
           <Link to="/audit">Audit</Link>
+          <Link to="/licences">Public Licence Summary</Link>
         </nav>
       </aside>
 

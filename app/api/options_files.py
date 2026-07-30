@@ -10,7 +10,7 @@ from app.services.options_service import create_options_file, record_options_fil
 router = APIRouter()
 
 class OptionsFileCreate(BaseModel):
-    filename: str
+    daemon_id: int
     content: str
 
 
@@ -30,7 +30,7 @@ def create_options(
     options_file, error = create_options_file(
         db=db,
         server_id=server_id,
-        filename=data.filename,
+        daemon_id=data.daemon_id,
         content=data.content,
     )
 
@@ -126,9 +126,9 @@ def get_options(
         "content_path": options_file.content_path,
         "created_at": options_file.created_at,
         "updated_at": options_file.updated_at,
-        "published_at": options.published_at,
-        "publish_status": options.publish_status,
-        "publish_message": options.publish_message,
+        "published_at": options_file.published_at,
+        "publish_status": options_file.publish_status,
+        "publish_message": options_file.publish_message,
     }
 
     db.close()

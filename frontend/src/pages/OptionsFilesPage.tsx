@@ -1,14 +1,15 @@
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { apiRequest } from "../api";
-import type { LicenseServer, OptionsFile } from "../types";
+import type { LicenseDaemon, LicenseServer, OptionsFile } from "../types";
 
 export function OptionsFilesPage() {
   const [servers, setServers] = useState<LicenseServer[]>([]);
+  const [daemons, setDaemons] = useState<LicenseDaemon[]>([]);
   const [optionsFiles, setOptionsFiles] = useState<OptionsFile[]>([]);
 
   const [selectedServerId, setSelectedServerId] = useState<string>("");
-  const [filename, setFilename] = useState("vendor.opt");
+  const [selectedDaemonId, setSelectedDaemonId] = useState<string>("");
   const [content, setContent] = useState("");
   const [error, setError] = useState<string | null>(null);
 
@@ -31,6 +32,17 @@ export function OptionsFilesPage() {
     setOptionsFiles(response);
   }
 
+  async function loadDaemons(serverId: string) {
+    if (!serverId) return;
+
+    const response = await apiRequest<LicenseDaemon[]>(
+      `/license-servers/${serverId}/daemons`
+    );
+
+    setDaemons(response);
+    setSelectedDaemonId(response.length > 0 ? String(response[0].id) : "");
+  }
+
   useEffect(() => {
     loadServers().catch((err) =>
       setError(err instanceof Error ? err.message : "Failed to load servers")
@@ -39,8 +51,13 @@ export function OptionsFilesPage() {
 
   useEffect(() => {
     if (selectedServerId) {
-      loadOptions(selectedServerId).catch((err) =>
-        setError(err instanceof Error ? err.message : "Failed to load options")
+      Promise.all([
+        loadOptions(selectedServerId),
+        loadDaemons(selectedServerId),
+      ]).catch((err) =>
+        setError(
+          err instanceof Error ? err.message : "Failed to load options configuration"
+        )
       );
     }
   }, [selectedServerId]);
@@ -53,7 +70,7 @@ export function OptionsFilesPage() {
       await apiRequest(`/license-servers/${selectedServerId}/options-files`, {
         method: "POST",
         body: JSON.stringify({
-          filename,
+          daemon_id: Number(selectedDaemonId),
           content,
         }),
       });
@@ -64,6 +81,10 @@ export function OptionsFilesPage() {
       setError(err instanceof Error ? err.message : "Failed to create options file");
     }
   }
+
+  const selectedDaemon = daemons.find(
+    (daemon) => daemon.id === Number(selectedDaemonId)
+  );
 
   async function recordOptions(id: number) {
     setError(null);
@@ -106,12 +127,23 @@ export function OptionsFilesPage() {
             </label>
 
             <label>
-              Filename
-              <input
-                value={filename}
-                onChange={(event) => setFilename(event.target.value)}
-              />
+              Vendor Daemon
+              <select
+                value={selectedDaemonId}
+                onChange={(event) => setSelectedDaemonId(event.target.value)}
+              >
+                {daemons.map((daemon) => (
+                  <option key={daemon.id} value={daemon.id}>
+                    {daemon.name}
+                  </option>
+                ))}
+              </select>
             </label>
+
+            <div className="configured-path">
+              <strong>Configured options path</strong>
+              <code>{selectedDaemon?.options_file_path ?? "Not configured"}</code>
+            </div>
 
             <label>
               Content
@@ -124,7 +156,12 @@ RESERVE 2 VCS GROUP weekend_users"
               />
             </label>
 
-            <button type="submit">Create Options File</button>
+            <button
+              type="submit"
+              disabled={!selectedDaemonId || !selectedDaemon?.options_file_path}
+            >
+              Create Options File
+            </button>
           </form>
 
           {error && <div className="error">{error}</div>}

@@ -8,6 +8,7 @@ import { DeploymentsPage } from "./pages/DeploymentsPage";
 import { LicenseServersPage } from "./pages/LicenseServersPage";
 import { LoginPage } from "./pages/LoginPage";
 import { OptionsFilesPage } from "./pages/OptionsFilesPage";
+import { PublicLicenseSummaryPage } from "./pages/PublicLicenseSummaryPage";
 import { UploadsPage } from "./pages/UploadsPage";
 
 export default function App() {
@@ -16,6 +17,7 @@ export default function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/licences" element={<PublicLicenseSummaryPage />} />
 
           <Route
             element={

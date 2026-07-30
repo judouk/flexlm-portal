@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from app.api import audit, auth, content, deployments, license_files, license_servers, options_files, users
+from app.api import audit, auth, content, deployments, license_files, license_servers, options_files, public, users
 
 from app.db import Base, engine
 
@@ -36,6 +36,7 @@ app.include_router(deployments.router)
 app.include_router(license_files.router)
 app.include_router(license_servers.router)
 app.include_router(options_files.router)
+app.include_router(public.router)
 app.include_router(users.router)
 
 Base.metadata.create_all(bind=engine)
