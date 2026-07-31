@@ -118,6 +118,45 @@ def aggregate_licence_summary(entries):
     )
 
 
+def select_latest_feature_entries(sources):
+    latest = {}
+
+    for source in sorted(
+        sources,
+        key=lambda item: (
+            item["imported_at"],
+            item["license_file_id"],
+        ),
+    ):
+        items_by_feature = {}
+
+        for item in source["items"]:
+            items_by_feature.setdefault(
+                item["feature"].casefold(),
+                [],
+            ).append(item)
+
+        for feature_key, items in items_by_feature.items():
+            latest[
+                (
+                    source["license_server"],
+                    feature_key,
+                )
+            ] = [
+                {
+                    "license_server": source["license_server"],
+                    **item,
+                }
+                for item in items
+            ]
+
+    return [
+        item
+        for items in latest.values()
+        for item in items
+    ]
+
+
 def is_current_licence(entry, today=None):
     expiry_date = entry["expiry_date"]
 

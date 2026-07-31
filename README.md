@@ -73,10 +73,12 @@ The frontend exposes `/licences` without requiring a portal login. It groups
 current uploaded licence rights by licence server, feature or product name,
 quantity, and expiry date. Cadence `Product Name` / `Licensed Rights` comment
 blocks and conventional FlexLM `FEATURE` / `INCREMENT` lines are supported.
+When multiple uploads define the same product or feature for a server, the
+newest definition replaces the historical definitions rather than adding them
+to the current total.
 
 12. Options files
 Configure the options file path on the appropriate vendor daemon first. The
 Options Files page then asks for that daemon and writes the managed content to
 the configured path, ensuring the path in the generated `DAEMON` line and the
 managed file refer to the same artifact.
-

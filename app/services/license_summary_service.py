@@ -2,6 +2,7 @@ from pathlib import Path
 
 from app.licenses.summary import aggregate_licence_summary
 from app.licenses.summary import is_current_licence
+from app.licenses.summary import select_latest_feature_entries
 from app.licenses.summary import summarise_licence_text
 from app.models.license_file import LicenseFile
 from app.models.license_server import LicenseServer
@@ -19,7 +20,7 @@ def get_public_license_summary(db):
         LicenseFile.imported_at.asc()
     ).all()
 
-    entries = []
+    sources = []
 
     for license_file in license_files:
         if not license_file.storage_path:
@@ -40,15 +41,19 @@ def get_public_license_summary(db):
             errors="ignore",
         )
 
-        for summary_item in summarise_licence_text(text):
-            if not is_current_licence(summary_item):
-                continue
+        sources.append(
+            {
+                "license_server": server_name,
+                "license_file_id": license_file.id,
+                "imported_at": license_file.imported_at,
+                "items": summarise_licence_text(text),
+            }
+        )
 
-            entries.append(
-                {
-                    "license_server": server_name,
-                    **summary_item,
-                }
-            )
+    entries = [
+        item
+        for item in select_latest_feature_entries(sources)
+        if is_current_licence(item)
+    ]
 
     return aggregate_licence_summary(entries)
