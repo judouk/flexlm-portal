@@ -10,19 +10,23 @@ import { LoginPage } from "./pages/LoginPage";
 import { OptionsFilesPage } from "./pages/OptionsFilesPage";
 import { PublicLicenseSummaryPage } from "./pages/PublicLicenseSummaryPage";
 import { UploadsPage } from "./pages/UploadsPage";
+import { useUxVersion } from "./ux";
+import { ModernLayout } from "./modern/ModernLayout";
+import { ModernLoginPage } from "./modern/ModernLoginPage";
 
 export default function App() {
+  const modern = useUxVersion() === 2;
   return (
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/login" element={<LoginPage />} />
+          <Route path="/login" element={modern ? <ModernLoginPage /> : <LoginPage />} />
           <Route path="/licences" element={<PublicLicenseSummaryPage />} />
 
           <Route
             element={
               <ProtectedRoute>
-                <AppLayout />
+                {modern ? <ModernLayout /> : <AppLayout />}
               </ProtectedRoute>
             }
           >

@@ -1,3 +1,6 @@
+# Optional interface selection: 1 = existing UI (default), 2 = modern UI.
+ux_version: 1
+
 server:
   host: 127.0.0.1
   port: 8000

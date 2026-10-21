@@ -1,4 +1,8 @@
 from fastapi import FastAPI
+from fastapi import Response
+
+from app.config import settings
+from app.ui_config import public_ui_config
 
 from app.api import audit, auth, content, deployments, license_files, license_servers, options_files, public, users
 
@@ -40,6 +44,12 @@ app.include_router(public.router)
 app.include_router(users.router)
 
 Base.metadata.create_all(bind=engine)
+
+
+@app.get("/ui-config")
+def ui_config(response: Response):
+    response.headers["Cache-Control"] = "no-store"
+    return public_ui_config(settings)
 
 
 @app.get("/")

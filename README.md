@@ -82,3 +82,48 @@ Configure the options file path on the appropriate vendor daemon first. The
 Options Files page then asks for that daemon and writes the managed content to
 the configured path, ensuring the path in the generated `DAEMON` line and the
 managed file refer to the same artifact.
+
+Optional modern interface
+=========================
+The existing React interface remains the default. To select the modern,
+ETX-inspired presentation, set this top-level value in your production
+`config/portal.yaml`:
+
+```yaml
+ux_version: 2
+```
+
+Omitting this setting, or setting `ux_version: 1`, selects the original UI.
+Only the integers `1` and `2` are accepted; invalid values fail backend startup.
+Create the production configuration from `config/portal.yaml.example` and
+configure it for your installation as described above. The example is not a
+production configuration.
+
+Build and deploy the frontend once with both interfaces included. Restart
+FastAPI after changing `ux_version`, then reload the browser. No frontend
+rebuild, database migration, or authentication changes are needed to switch.
+To roll back the presentation, set `ux_version: 1`, restart FastAPI and reload.
+
+Both versions use the same URLs, API endpoints, AD/LDAP authentication,
+role checks, licence processing, storage and publishing services. ETX supplies
+visual inspiration only; its Google/Microsoft OAuth sign-in is not included.
+The existing local and trusted-header authentication providers remain supported.
+The public `/licences` page remains available without authentication.
+
+FastAPI exposes only `{"ux_version": 1}` or `{"ux_version": 2}` at `/ui-config`
+(`/api/ui-config` through the documented Apache proxy). This endpoint must be
+reachable before login and must not be cached by the reverse proxy. It never
+returns credentials or other portal settings. An older backend returning 404
+selects UI 1; other configuration failures show a retry screen. Keep the existing
+SPA fallback for direct links such as `/servers` and `/licences`, and preserve
+the `/api` proxy ahead of that fallback.
+
+The modern stylesheet is loaded only for UI 2 and scoped to that version.
+Functional pages, API helpers, login handling and authentication are shared.
+UI 2 waits for `/me` before redirecting a protected route; UI 1 retains its
+existing session-initialization behavior.
+
+Validation: `python -m unittest discover -s tests` (with the backend dependencies
+installed), and `cd frontend && npm test && npm run build`. UI configuration tests use
+isolated temporary configurations/databases and mock AD authentication; a live
+AD sign-in should also be checked in your deployment environment.

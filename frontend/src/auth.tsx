@@ -22,6 +22,7 @@ type AuthContextType = {
   login: (username: string, password: string) => Promise<void>;
   logout: () => void;
   isAuthenticated: boolean;
+  isLoading: boolean;
 };
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -39,6 +40,7 @@ export function AuthProvider({
   const [user, setUser] = useState<CurrentUser | null>(
     null
   );
+  const [isLoading, setIsLoading] = useState(true);
 
 
   async function loadCurrentUser() {
@@ -50,6 +52,8 @@ export function AuthProvider({
 
     } catch {
       setUser(null);
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -101,6 +105,7 @@ export function AuthProvider({
         login,
         logout,
         isAuthenticated: Boolean(user),
+        isLoading,
       }}
     >
       {children}
